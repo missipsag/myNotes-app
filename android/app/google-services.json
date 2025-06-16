@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "406049242987",
+    "project_id": "missipsa-mynotes-app",
+    "storage_bucket": "missipsa-mynotes-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:406049242987:android:22c40b4abc7ead3e53562e",
+        "android_client_info": {
+          "package_name": "com.missipsa.mynotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFgjCeXllRCpaFb_PPkTRA7MDuYbYFZ10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
