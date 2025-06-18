@@ -3,6 +3,7 @@ import 'dart:developer' as devtools show log;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mynotes/constants/routes.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -72,7 +73,7 @@ class _LoginViewState extends State<LoginView> {
                 );
                 Navigator.of(
                   context,
-                ).pushNamedAndRemoveUntil('/notes/', (_) => false);
+                ).pushNamedAndRemoveUntil(notesRoute, (_) => false);
               } on FirebaseAuthException catch (e) {
                 Fluttertoast.showToast(
                   msg: 'Invalid credentials.',
@@ -91,7 +92,7 @@ class _LoginViewState extends State<LoginView> {
             onPressed: () {
               Navigator.of(
                 context,
-              ).pushNamedAndRemoveUntil('/register/', (route) => false);
+              ).pushNamedAndRemoveUntil(registerRoute, (route) => false);
             },
             child: Text('Not registered yet ? Register here!'),
           ),
