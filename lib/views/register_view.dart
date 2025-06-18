@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'dart:developer' as devtools show log;
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -61,7 +62,7 @@ class __RegisterViewState extends State<RegisterView> {
                       email: email,
                       password: password,
                     );
-                print(
+                devtools.log(
                   ">>>>>>> these are the user Credentials : $userCredential",
                 );
               } on FirebaseAuthException catch (e) {
@@ -72,8 +73,8 @@ class __RegisterViewState extends State<RegisterView> {
                   fontSize: 16.0,
                 );
               } catch (e) {
-                print('Error: Something went wrong.');
-                print(e);
+                devtools.log('Error: Something went wrong.');
+                devtools.log(e.toString());
               }
             },
             child: const Text('Register'),

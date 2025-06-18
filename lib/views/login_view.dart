@@ -1,3 +1,5 @@
+import 'dart:developer' as devtools show log;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -47,7 +49,6 @@ class _LoginViewState extends State<LoginView> {
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
             decoration: const InputDecoration(hintText: 'Enter email'),
-          
           ),
           TextField(
             controller: _password,
@@ -66,9 +67,12 @@ class _LoginViewState extends State<LoginView> {
                       email: email,
                       password: password,
                     );
-                print(
+                devtools.log(
                   ">>>>>>> these are the user Credentials : $userCredential",
                 );
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/notes/', (_) => false);
               } on FirebaseAuthException catch (e) {
                 Fluttertoast.showToast(
                   msg: 'Invalid credentials.',
@@ -77,8 +81,8 @@ class _LoginViewState extends State<LoginView> {
                   fontSize: 16.0,
                 );
               } catch (e) {
-                print('Error : Something went wrong.');
-                print(e);
+                devtools.log('Error : Something went wrong.');
+                devtools.log(e.toString());
               }
             },
             child: const Text('Login'),
