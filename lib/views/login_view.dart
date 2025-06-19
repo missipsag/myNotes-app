@@ -2,8 +2,8 @@ import 'dart:developer' as devtools show log;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -69,21 +69,17 @@ class _LoginViewState extends State<LoginView> {
                       password: password,
                     );
                 devtools.log(
-                  ">>>>>>> these are the user Credentials : $userCredential",
+                  ">>>>>>> these are the user Crxedentials : $userCredential",
                 );
                 Navigator.of(
                   context,
                 ).pushNamedAndRemoveUntil(notesRoute, (_) => false);
               } on FirebaseAuthException catch (e) {
-                Fluttertoast.showToast(
-                  msg: 'Invalid credentials.',
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  fontSize: 16.0,
-                );
+                if (e.code == 'invalid-credential') {
+                  await showErrorDialog(context, 'invalide credentials');
+                }
               } catch (e) {
-                devtools.log('Error : Something went wrong.');
-                devtools.log(e.toString());
+                await showErrorDialog(context, e.toString());
               }
             },
             child: const Text('Login'),
