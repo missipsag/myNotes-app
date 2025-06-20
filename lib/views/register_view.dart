@@ -1,7 +1,9 @@
+import 'dart:developer' as devtools show log;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'dart:developer' as devtools show log;
+import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -57,21 +59,23 @@ class __RegisterViewState extends State<RegisterView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential = await FirebaseAuth.instance
+                var user = await FirebaseAuth.instance
                     .createUserWithEmailAndPassword(
                       email: email,
                       password: password,
                     );
-                devtools.log(
-                  ">>>>>>> these are the user Credentials : $userCredential",
-                );
+                await FirebaseAuth.instance.currentUser
+                    ?.sendEmailVerification();
+                Navigator.of(context).pushNamed(verifyEmailRoute);
               } on FirebaseAuthException catch (e) {
-                Fluttertoast.showToast(
-                  msg: '$e.message',
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  fontSize: 16.0,
-                );
+                devtools.log(e.code);
+                if (e.code == 'weak-password') {
+                  await showErrorDialog(context, 'weak password');
+                } else if (e.code == 'email-already-in-use') {
+                  await showErrorDialog(context, 'email already in use');
+                } else if (e.code == 'invalid-email') {
+                  await showErrorDialog(context, 'invalid email adress');
+                }
               } catch (e) {
                 devtools.log('Error: Something went wrong.');
                 devtools.log(e.toString());
@@ -83,7 +87,7 @@ class __RegisterViewState extends State<RegisterView> {
             onPressed: () {
               Navigator.of(
                 context,
-              ).pushNamedAndRemoveUntil('/login/', (route) => false);
+              ).pushNamedAndRemoveUntil(loginRoute, (route) => false);
             },
 
             child: const Text('login '),
