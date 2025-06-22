@@ -71,9 +71,16 @@ class _LoginViewState extends State<LoginView> {
                 devtools.log(
                   ">>>>>>> these are the user Crxedentials : $userCredential",
                 );
-                Navigator.of(
-                  context,
-                ).pushNamedAndRemoveUntil(notesRoute, (_) => false);
+                final user = await FirebaseAuth.instance.currentUser;
+                if (user?.emailVerified ?? false) {
+                  await Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil(notesRoute, (_) => false);
+                } else {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil(verifyEmailRoute, (_) => false);
+                }
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'invalid-credential') {
                   await showErrorDialog(context, 'invalide credentials');
