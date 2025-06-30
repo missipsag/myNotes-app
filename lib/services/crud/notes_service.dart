@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:developer' as devtools show log;
+
 import 'package:flutter/foundation.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
 import 'package:path/path.dart';
@@ -8,12 +10,17 @@ import 'package:sqflite/sqflite.dart';
 class NotesService {
   Database? _db;
   List<DatabaseNote> _notes = [];
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NotesService() => _shared;
 
   Future<void> _cacheNotes() async {
@@ -28,16 +35,26 @@ class NotesService {
     }
 
     try {
-      final docsPath = await getApplicationCacheDirectory();
+      final docsPath = await getApplicationDocumentsDirectory();
       final dbPath = join(docsPath.path, dbName);
-      final db = await openDatabase(dbPath);
+      final db = await openDatabase(dbPath,  version: 1,
+        onCreate: (db, version) async {
+          await db.execute(createUserTable);
+          await db.execute(createNoteTable);
+        },
+      );
       _db = db;
 
       await db.execute(createNoteTable);
+      devtools.log('Created note table');
       await db.execute(createUserTable);
+      devtools.log('Created user table');
+
       await _cacheNotes();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -295,26 +312,49 @@ class DatabaseNote {
   int get hashCode => id.hashCode;
 }
 
-const dbName = 'mynotes.db';
+// const dbName = 'mynotes.db';
+// const notesTable = 'note';
+// const userTable = 'user';
+// const idColumn = 'id';
+// const emailColumn = 'email';
+// const userIdColumn = 'user_id';
+// const textColumn = 'text';
+// const isSyncWithCloudColumn = 'is_sync_with_the_cloud';
+// const createUserTable = '''
+//         CREATE TABLE IF NOT EXISTS user (
+//             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+//             email TEXT NOT NULL UNIQUE
+//         );
+//       ''';
+
+// const createNoteTable = '''
+//         CREATE TABLE IF NOT EXISTS note (
+//           id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+//           user_id INTEGER  NOT NULL UNIQUE,
+//           text TEXT NOT NULL,
+//           is_sync_with_the_cloud INTEGER NOT NULL DEFAULT 0,
+//           FOREIGN KEY('user_id') REFERENCES "user"('id')
+//           );
+//     ''';
+
+const dbName = 'notes.db';
 const notesTable = 'note';
 const userTable = 'user';
 const idColumn = 'id';
 const emailColumn = 'email';
 const userIdColumn = 'user_id';
 const textColumn = 'text';
-const isSyncWithCloudColumn = 'is_sync_with_the_cloud';
-const createUserTable = ''' 
-        CREATE TABLE IF NOT EXISTS user (  
-            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-            email TEXT NOT NULL UNIQUE
-        );
-      ''';
-
-const createNoteTable = '''
-        CREATE TABLE IF NOT EXISTS note (
-          id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-          userId INTEGER  NOT NULL UNIQUE,    
-          text TEXT NOT NULL, is_sync_with_the_cloud INTEGER NOT NULL DEFAULT 0 ,
-          FOREIGN KEY('userId') REFERENCES "user"('id')
-          );
-    ''';
+const isSyncWithCloudColumn = 'is_synced_with_cloud';
+const createUserTable = '''CREATE TABLE IF NOT EXISTS "user" (
+        "id"	INTEGER NOT NULL,
+        "email"	TEXT NOT NULL UNIQUE,
+        PRIMARY KEY("id" AUTOINCREMENT)
+      );''';
+const createNoteTable = '''CREATE TABLE IF NOT EXISTS "note" (
+        "id"	INTEGER NOT NULL,
+        "user_id"	INTEGER NOT NULL,
+        "text"	TEXT,
+        "is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY("user_id") REFERENCES "user"("id"),
+        PRIMARY KEY("id" AUTOINCREMENT)
+      );''';

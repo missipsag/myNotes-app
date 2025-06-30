@@ -1,3 +1,5 @@
+import 'dart:developer' as devtools show log;
+
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/services/auth/auth_exceptions.dart';
@@ -62,10 +64,11 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                AuthService.firebase().login(email: email, password: password);
-                final user = await AuthService.firebase().currentUser;
+                await AuthService.firebase().login(email: email, password: password);
+                final user = AuthService.firebase().currentUser;
+                devtools.log('USER : ${user}');
                 if (user?.isEmailVerified ?? false) {
-                 Navigator.of(
+                  Navigator.of(
                     context,
                   ).pushNamedAndRemoveUntil(notesRoute, (_) => false);
                 } else {

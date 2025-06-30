@@ -18,7 +18,8 @@ class _NewNoteViewState extends State<NewNoteView> {
   void initState() {
     _notesService = NotesService();
     _textController = TextEditingController();
-    super.initState();
+ 
+     super.initState();
   }
 
   void _textControllerListener() async {
@@ -35,9 +36,9 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
   Future<DatabaseNote> createNewNote() async {
-    final _existingNote = _note;
-    if (_existingNote != null) {
-      return _existingNote;
+    final existingNote = _note;
+    if (existingNote != null) {
+      return existingNote;
     }
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
@@ -55,7 +56,7 @@ class _NewNoteViewState extends State<NewNoteView> {
   void _saveNoteIfTextNotEmpty() async {
     final note = _note;
     final text = _textController.text;
-    if (text.isNotEmpty && note != null) {
+    if (note != null && text.isNotEmpty) {
       await _notesService.updateNote(note: note, text: text);
     }
   }
@@ -86,7 +87,9 @@ class _NewNoteViewState extends State<NewNoteView> {
                 controller: _textController,
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
-                decoration: InputDecoration(hintText: 'start typing you note...'),
+                decoration: InputDecoration(
+                  hintText: 'start typing you note...',
+                ),
               );
             default:
               return CircularProgressIndicator();
