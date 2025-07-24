@@ -13,8 +13,17 @@ class FirebaseCloudStorage {
             .where((note) => note.ownerUserId == ownerUserId),
       );
 
-  void createNewNote({required String ownerId}) async {
-    await notes.add({ownerUserIdFieldName: ownerId, textFieldName: ''});
+  Future<CloudNote> createNewNote({required String ownerId}) async {
+    final document = await notes.add({
+      ownerUserIdFieldName: ownerId,
+      textFieldName: '',
+    });
+    final fetchedNote = await document.get();
+    return CloudNote(
+      documentId: fetchedNote.id,
+      ownerUserId: ownerId,
+      text: '',
+    );
   }
 
   Future<Iterable<CloudNote>> getNotes({required String ownerId}) async {
@@ -23,13 +32,7 @@ class FirebaseCloudStorage {
           .where(ownerUserIdFieldName, isEqualTo: ownerId)
           .get()
           .then(
-            (value) => value.docs.map((doc) {
-              return CloudNote(
-                documentId: doc.id,
-                ownerUserId: doc.data()[ownerUserIdFieldName] as String,
-                text: doc.data()[textFieldName] as String,
-              );
-            }),
+            (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
           );
     } catch (e) {
       throw CouldNotGetAllNotesException();
