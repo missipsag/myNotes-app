@@ -25,13 +25,7 @@ void main() {
         create: (context) => AuthBloc(FirebaseAuthProvider()),
         child: const HomePage(),
       ),
-      routes: {
-        loginRoute: (context) => const LoginView(),
-        registerRoute: (context) => const RegisterView(),
-        notesRoute: (context) => const NotesView(),
-        verifyEmailRoute: (context) => const VerifyEmailView(),
-        createOrUpdateNoteRoute: (context) => const NewNoteView(),
-      },
+      routes: {createOrUpdateNoteRoute: (context) => const NewNoteView()},
     ),
   );
 }
@@ -50,6 +44,8 @@ class HomePage extends StatelessWidget {
           return LoginView();
         } else if (state is AuthStateNeedsVerification) {
           return VerifyEmailView();
+        } else if (state is AuthStateRegistering) {
+          return RegisterView();
         } else {
           return const Scaffold(body: CircularProgressIndicator());
         }
