@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mynotes/firebase_options.dart';
 import 'package:mynotes/services/auth/auth_provider.dart';
@@ -67,10 +69,12 @@ class FirebaseAuthProvider implements AuthProvider {
         throw UserNotLoggedInAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw UserNotFoundAuthException();
-      } else if (e.code == 'wrong-password') {
-        throw WrongPasswordAuthException();
+      log(e.toString());
+      // because firebase seems to have changed authexception error codes
+      // now there is none of user-not-found or wrong-password 
+      // there is only invalid-credential which seems to refrencing both error codes stated above.
+      if (e.code == 'invalid-credential') {
+        throw InvalidCredentials();
       } else {
         throw GenericAuthException();
       }
@@ -88,6 +92,7 @@ class FirebaseAuthProvider implements AuthProvider {
       throw UserNotLoggedInAuthException();
     }
   }
+
   @override
   Future<void> sendEmailVerification() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -100,6 +105,7 @@ class FirebaseAuthProvider implements AuthProvider {
   }
 
   @override
-  Future<void> initialize() async =>
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  Future<void> initialize() async => await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
