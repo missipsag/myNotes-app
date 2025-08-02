@@ -108,7 +108,11 @@ class MockAuthProvider implements AuthProvider {
     if (email == 'foo@bar.com') throw UserNotFoundAuthException();
     if (password == 'foobar') throw WrongPasswordAuthException();
     // hard coding id because we didn't set a test to test id so it won't break things.
-    const user = AuthUser(id:'azertu', isEmailVerified: false, email: 'foo@bar.com',);
+    const user = AuthUser(
+      id: 'azertu',
+      isEmailVerified: false,
+      email: 'foo@bar.com',
+    );
     _user = user;
     return Future.value(user);
   }
@@ -126,7 +130,25 @@ class MockAuthProvider implements AuthProvider {
     if (!isInitialized) throw NotInitializedException();
     final user = _user;
     if (user == null) throw UserNotFoundAuthException();
-    const newUser = AuthUser(id: "azertu", isEmailVerified: true, email: 'foo@bar.com');
+    const newUser = AuthUser(
+      id: "azertu",
+      isEmailVerified: true,
+      email: 'foo@bar.com',
+    );
     _user = newUser;
+  }
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) async {
+    if (!isInitialized) throw NotInitializedException();
+    final user = _user;
+    if (user == null) throw UserNotFoundAuthException();
+    await Future.delayed(const Duration(seconds: 2));
+    const updateUser = AuthUser(
+      id: 'azertu',
+      email: 'foobar@baz.com',
+      isEmailVerified: true,
+    );
+    _user = updateUser;
   }
 }

@@ -71,10 +71,10 @@ class FirebaseAuthProvider implements AuthProvider {
     } on FirebaseAuthException catch (e) {
       log(e.toString());
       // because firebase seems to have changed authexception error codes
-      // now there is none of user-not-found or wrong-password 
+      // now there is none of user-not-found or wrong-password
       // there is only invalid-credential which seems to refrencing both error codes stated above.
       if (e.code == 'invalid-credential') {
-        throw InvalidCredentials();
+        throw InvalidCredentialsAuthExcetpion();
       } else {
         throw GenericAuthException();
       }
@@ -108,4 +108,23 @@ class FirebaseAuthProvider implements AuthProvider {
   Future<void> initialize() async => await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: toEmail);
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'invalid-email':
+          throw InvalidEmailAuthException();
+        case 'invalid-credential':
+          throw InvalidCredentialsAuthExcetpion();
+
+        default:
+          throw GenericAuthException();
+      }
+    } catch (_) {
+      throw GenericAuthException();
+    }
+  }
 }

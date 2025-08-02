@@ -36,8 +36,8 @@ class _LoginViewState extends State<LoginView> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStateLoggedOut) {
-          if (state.exception is InvalidCredentials) {
-            await showErrorDialog(context, "Invalid credentials.");
+          if (state.exception is InvalidCredentialsAuthExcetpion) {
+            await showErrorDialog(context, "Cannot find user with the entered credentials");
           } else if (state.exception is GenericAuthException) {
             await showErrorDialog(context, "Authentification error.");
           }
@@ -50,43 +50,53 @@ class _LoginViewState extends State<LoginView> {
           centerTitle: true,
         ),
 
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 16.0,
-          children: [
-            TextField(
-              controller: _email,
-              enableSuggestions: false,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              decoration: const InputDecoration(hintText: 'Enter email'),
-            ),
-            TextField(
-              controller: _password,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(hintText: 'Enter password'),
-            ),
-            BlocListener<AuthBloc, AuthState>(
-              listener: (context, state) async {},
-              child: TextButton(
-                onPressed: () async {
-                  final email = _email.text;
-                  final password = _password.text;
-                  context.read<AuthBloc>().add(AuthEventLogIn(email, password));
-                },
-                child: const Text('Login'),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 16.0,
+            children: [
+              Text('Please log in to your account in order to interact with and create notes !'),
+              TextField(
+                controller: _email,
+                enableSuggestions: false,
+                keyboardType: TextInputType.emailAddress,
+                autocorrect: false,
+                decoration: const InputDecoration(hintText: 'Enter email'),
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventShouldRegister());
-              },
-              child: Text('Not registered yet ? Register here!'),
-            ),
-          ],
+              TextField(
+                controller: _password,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: const InputDecoration(hintText: 'Enter password'),
+              ),
+              BlocListener<AuthBloc, AuthState>(
+                listener: (context, state) async {},
+                child: TextButton(
+                  onPressed: () async {
+                    final email = _email.text;
+                    final password = _password.text;
+                    context.read<AuthBloc>().add(AuthEventLogIn(email, password));
+                  },
+                  child: const Text('Login'),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventForgotPassword());
+                },
+                child: Text('I forgot my password'),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(const AuthEventShouldRegister());
+                },
+                child: Text('Not registered yet ? Register here!'),
+              ),
+            ],
+          ),
         ),
       ),
     );
